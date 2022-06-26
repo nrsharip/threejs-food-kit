@@ -24,6 +24,11 @@
 			import * as THREE from 'three';
 			import { GLTFLoader } from 'https://unpkg.com/three@0.141.0/examples/jsm/loaders/GLTFLoader.js';
 			const scene = new THREE.Scene();
+			// see https://threejs.org/manual/#en/load-gltf
+			//     here's also a very useful example of Blender Scene processing 
+			// https://encycolorpedia.com/96b0bc
+			scene.background = new THREE.Color('#96b0bc');
+
 			const camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
 
 			const renderer = new THREE.WebGLRenderer();
@@ -40,7 +45,7 @@
 
 			// see https://threejs.org/manual/#en/lights
 			const color = 0xFFFFFF;
-			const intensity = 2;
+			const intensity = 2.5;
 
 			const light = new THREE.DirectionalLight(color, intensity);
 			light.position.set(0.5, 0.5, 0.5);
