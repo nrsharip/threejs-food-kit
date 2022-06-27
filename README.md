@@ -13,6 +13,8 @@ To avoid CORS errors with external files:
    //Python 3.x
    python -m http.server
    ```
+4. Go to http://localhost:8000/
+
 
 NPM package browser for ThreeJS:
 - https://unpkg.com/browse/three@0.141.0/
