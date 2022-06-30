@@ -1,6 +1,16 @@
+"use strict"
+
 import * as THREE from 'three';
+import WebGLCheck from './WebGL.js';
 import { GLTFLoader } from 'https://unpkg.com/three@0.141.0/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'https://unpkg.com/three@0.141.0/examples/jsm/controls/OrbitControls.js';
+
+// see https://threejs.org/docs/index.html#manual/en/introduction/WebGL-compatibility-check
+if ( !WebGLCheck.isWebGLAvailable() ) {
+	const warning = WebGLCheck.getWebGLErrorMessage();
+	document.getElementById( 'container' ).appendChild( warning );
+    throw new Error(warning);
+}
 
 // see https://threejs.org/manual/#en/load-gltf
 //     here's also a very useful example of Blender Scene processing 
@@ -19,7 +29,7 @@ const dirLight = new THREE.DirectionalLight();
 dirLight.color.set(0xFFFFFF);
 dirLight.position.set( 2, 2, -2 );
 dirLight.target.position.set(0, 0, 0);
-dirLight.intensity = 2;
+dirLight.intensity = 3;
 
 scene.add( dirLight );
 scene.add( dirLight.target );
@@ -35,8 +45,9 @@ loader.load( 'assets/3d/foodKit_v1.2/Models/GLTF/apple.glb', function ( gltf ) {
 // see https://github.com/mrdoob/three.js/blob/dev/examples/physics_ammo_instancing.html
 // see https://threejs.org/docs/api/en/renderers/WebGLRenderer.html
 const renderer = new THREE.WebGLRenderer();
+// see also: https://usefulangle.com/post/12/javascript-going-fullscreen-is-rare
 renderer.setPixelRatio( window.devicePixelRatio );
-renderer.setSize( window.innerWidth * 0.999, window.innerHeight * 0.996);
+renderer.setSize( window.innerWidth, window.innerHeight - 1 ); // -1 helps to avoid scrollbars in Chrome
 document.body.appendChild( renderer.domElement );
 
 // see https://threejs.org/docs/#examples/en/controls/OrbitControls
