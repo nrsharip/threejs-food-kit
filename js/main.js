@@ -50,17 +50,17 @@ function setupDirLight() {
     // see https://threejs.org/manual/#en/lights
     const dirLight = new THREE.DirectionalLight();
     dirLight.color.set(0xFFFFFF);
-    dirLight.position.x = 2;
-    dirLight.position.y = 2;
-    dirLight.position.z = 0;
+    dirLight.position.x = 10;
+    dirLight.position.y = 10;
+    dirLight.position.z = 10;
     dirLight.target.position.set(0, 0, 0);
-    dirLight.intensity = 2;
+    dirLight.intensity = 1.2;
 
     // Shadows (see https://threejs.org/manual/#en/shadows)
     dirLight.castShadow = true;
-    dirLight.shadow.camera.position.x = 2;
-    dirLight.shadow.camera.position.y = 2;
-    dirLight.shadow.camera.position.z = 0;
+    dirLight.shadow.camera.position.x = 10;
+    dirLight.shadow.camera.position.y = 10;
+    dirLight.shadow.camera.position.z = 10;
     dirLight.shadow.camera.lookAt(0, 0, 0);
 
     dirLight.shadow.camera.top = 4;
@@ -68,12 +68,14 @@ function setupDirLight() {
     dirLight.shadow.camera.left = -4;
     dirLight.shadow.camera.right = 4;
     dirLight.shadow.camera.near = 0.1;
-    dirLight.shadow.camera.far = 20;
+    dirLight.shadow.camera.far = 30;
 
     // to avoid low-resolution shadows 
     dirLight.shadow.mapSize.width = 2048;
     dirLight.shadow.mapSize.height = 2048;
 
+    console.log("Direction Light: ");
+    console.log(dirLight);
     return dirLight;
 }
 
@@ -111,14 +113,14 @@ function makeCube() {
 }
 
 function makeGround() {
-    const planeSize = 20;
+    const planeSize = 10;
     // see https://threejs.org/manual/#en/lights
     const loader = new THREE.TextureLoader();
     const texture = loader.load('assets/images/checker.png');
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
     texture.magFilter = THREE.NearestFilter;
-    const repeats = planeSize / 2;
+    const repeats = 2 * planeSize;
     texture.repeat.set(repeats, repeats);
 
     // see https://threejs.org/manual/#en/lights
@@ -127,6 +129,8 @@ function makeGround() {
         map: texture,
         side: THREE.DoubleSide,
     });
+    planeMat.color.setRGB(1.7, 1.7, 1.7); // see https://threejs.org/manual/#en/shadows
+
     const mesh = new THREE.Mesh(planeGeo, planeMat);
     mesh.rotation.x = Math.PI * -.5;
 
@@ -145,7 +149,7 @@ const orbitControls = setupOrbitControls(camera, renderer);
 const dirLight = setupDirLight();
 scene.add( dirLight );
 const ambLight = setupAmbLight();
-scene.add(ambLight);
+//scene.add(ambLight);
 
 // HELPERS
 // see https://threejs.org/manual/#en/lights
@@ -157,6 +161,7 @@ scene.add(cameraHelper);
 
 // OBJECTS
 const cube = makeCube();
+console.log("cube: ");
 console.log(cube);
 scene.add(cube);
 
@@ -168,6 +173,7 @@ let apple = new THREE.Object3D();
 const loader = new GLTFLoader();
 loader.load( 'assets/3d/foodKit_v1.2/Models/GLTF/apple.glb', function ( gltf ) {
     
+    console.log("gltf: ");
     console.log(gltf);
 
     if (gltf && gltf.scene && gltf.scene instanceof THREE.Object3D) {
@@ -177,10 +183,17 @@ loader.load( 'assets/3d/foodKit_v1.2/Models/GLTF/apple.glb', function ( gltf ) {
                 // see https://threejs.org/manual/#en/shadows
                 object.castShadow = true;
                 object.receiveShadow = true;
+
+                // see https://threejs.org/manual/#en/materials
+                //     table with roughness from 0 to 1 across and metalness from 0 to 1 down.
+                object.material.roughness = 0.57; // the value is out of Chrome Console debug
+                object.material.metalness = 0; // the value is out of Chrome Console debug
             }
         })
-
-        scene.add( gltf.scene );
+        console.log("apple:");
+        console.log(apple);
+        
+        scene.add( apple );
     }
 
     requestAnimationFrame( render );
