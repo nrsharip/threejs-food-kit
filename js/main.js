@@ -7,58 +7,112 @@ import { OrbitControls } from 'https://unpkg.com/three@0.141.0/examples/jsm/cont
 
 // see https://threejs.org/docs/index.html#manual/en/introduction/WebGL-compatibility-check
 if ( !WebGLCheck.isWebGLAvailable() ) {
-	const warning = WebGLCheck.getWebGLErrorMessage();
-	document.getElementById( 'container' ).appendChild( warning );
-    throw new Error(warning);
+    const warning = WebGLCheck.getWebGLErrorMessage();
+    document.body.appendChild( warning );
+    throw new Error(warning.textContent);
 }
 
-// see https://threejs.org/manual/#en/load-gltf
-//     here's also a very useful example of Blender Scene processing 
-const scene = new THREE.Scene();
-scene.background = new THREE.Color('#96b0bc'); // https://encycolorpedia.com/96b0bc
+function setupRenderer() {
+    // see https://github.com/mrdoob/three.js/blob/dev/examples/physics_ammo_instancing.html
+    // see https://threejs.org/docs/api/en/renderers/WebGLRenderer.html
+    const canvas = document.querySelector('#main');
+    const renderer = new THREE.WebGLRenderer({canvas});
+    // see also: https://usefulangle.com/post/12/javascript-going-fullscreen-is-rare
+    renderer.setPixelRatio( window.devicePixelRatio );
+    renderer.setSize( window.innerWidth, window.innerHeight - 1 ); // -1 helps to avoid scrollbars in Chrome
+    return renderer;
+}
 
-// see https://threejs.org/manual/#en/cameras
-const camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
-camera.position.x = 1;
-camera.position.y = 1;
-camera.position.z = 1;
-camera.lookAt(0, 0, 0);
+function setupPerspectiveCamera() {
+    // see https://threejs.org/manual/#en/cameras
+    const perspectiveCamera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
+    perspectiveCamera.position.x = 0;
+    perspectiveCamera.position.y = 1;
+    perspectiveCamera.position.z = 2;
+    perspectiveCamera.lookAt(0, 0, 0);
+    return perspectiveCamera;
+}
 
-// see https://threejs.org/manual/#en/lights
-const dirLight = new THREE.DirectionalLight();
-dirLight.color.set(0xFFFFFF);
-dirLight.position.set( 2, 2, -2 );
-dirLight.target.position.set(0, 0, 0);
-dirLight.intensity = 3;
+function setupScene() {
+    // see https://threejs.org/manual/#en/load-gltf
+    //     here's also a very useful example of Blender Scene processing 
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color('#96b0bc'); // https://encycolorpedia.com/96b0bc
+    return scene;
+}
 
+function setupDirLight() {
+    // see https://threejs.org/manual/#en/lights
+    const dirLight = new THREE.DirectionalLight();
+    dirLight.color.set(0xFFFFFF);
+    dirLight.position.x = 2;
+    dirLight.position.y = 2;
+    dirLight.position.z = 0;
+    dirLight.target.position.set(0, 0, 0);
+    dirLight.intensity = 3;
+    return dirLight;
+}
+
+function setupOrbitControls(camera, renderer) {
+    // see https://threejs.org/docs/#examples/en/controls/OrbitControls
+    const orbitControls = new OrbitControls( camera, renderer.domElement );
+    orbitControls.target.y = 0.5;
+    orbitControls.update();
+    return orbitControls;
+}
+
+function makeCube() {
+    const geometry = new THREE.BoxGeometry(1, 1, 1);
+    // The MeshBasicMaterial is not affected by lights. 
+    // Let's change it to a MeshPhongMaterial which is affected by lights.
+    const material = new THREE.MeshPhongMaterial({color: 0x44aa88});
+    const cube = new THREE.Mesh(geometry, material);
+    cube.position.x = -1;
+    cube.position.y = 0;
+    cube.position.z = 0;
+    
+    console.log(cube);
+
+    return cube;
+}
+
+const renderer = setupRenderer();
+const camera = setupPerspectiveCamera();
+const scene = setupScene(); 
+
+const dirLight = setupDirLight();
 scene.add( dirLight );
 scene.add( dirLight.target );
 
+const orbitControls = setupOrbitControls(camera, renderer);
+
+const cube = makeCube();
+scene.add(cube);
+
+let apple;
 // see https://threejs.org/docs/index.html#manual/en/introduction/Loading-3D-models
 const loader = new GLTFLoader();
 loader.load( 'assets/3d/foodKit_v1.2/Models/GLTF/apple.glb', function ( gltf ) {
-    scene.add( gltf.scene );
+    
+    console.log(gltf);
+
+    if (gltf && gltf.scene && gltf.scene instanceof THREE.Object3D) {
+        apple = gltf.scene;
+        scene.add( gltf.scene );
+    }
+
+    requestAnimationFrame( render );
 }, undefined, function ( error ) {
     console.error( error );
 } );
 
-// see https://github.com/mrdoob/three.js/blob/dev/examples/physics_ammo_instancing.html
-// see https://threejs.org/docs/api/en/renderers/WebGLRenderer.html
-const renderer = new THREE.WebGLRenderer();
-// see also: https://usefulangle.com/post/12/javascript-going-fullscreen-is-rare
-renderer.setPixelRatio( window.devicePixelRatio );
-renderer.setSize( window.innerWidth, window.innerHeight - 1 ); // -1 helps to avoid scrollbars in Chrome
-document.body.appendChild( renderer.domElement );
+function render(time) {
+    requestAnimationFrame( render );
 
-// see https://threejs.org/docs/#examples/en/controls/OrbitControls
-const controls = new OrbitControls( camera, renderer.domElement );
-controls.target.y = 0.5;
-controls.update();
+    apple.rotation.y = time * 0.001;
 
-function animate() {
-    requestAnimationFrame( animate );
+    cube.rotation.y = time * 0.001;
 
     renderer.render( scene, camera );
 };
 
-animate();
