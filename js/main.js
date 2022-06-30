@@ -18,14 +18,15 @@ function setupRenderer() {
     const canvas = document.querySelector('#main');
     const renderer = new THREE.WebGLRenderer({canvas});
     // see also: https://usefulangle.com/post/12/javascript-going-fullscreen-is-rare
-    renderer.setPixelRatio( window.devicePixelRatio );
-    renderer.setSize( window.innerWidth, window.innerHeight - 1 ); // -1 helps to avoid scrollbars in Chrome
+    // renderer.setPixelRatio( window.devicePixelRatio ); // This is strongly NOT RECOMMENDED
+    renderer.setSize( canvas.clientWidth, canvas.clientHeight, false ); // -1 helps to avoid scrollbars in Chrome
     return renderer;
 }
 
 function setupPerspectiveCamera() {
     // see https://threejs.org/manual/#en/cameras
-    const perspectiveCamera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
+    const canvas = document.querySelector('#main');
+    const perspectiveCamera = new THREE.PerspectiveCamera( 50, canvas.clientWidth / canvas.clientHeight, 0.1, 1000 );
     perspectiveCamera.position.x = 0;
     perspectiveCamera.position.y = 1;
     perspectiveCamera.position.z = 2;
@@ -110,9 +111,25 @@ function render(time) {
     requestAnimationFrame( render );
 
     apple.rotation.y = time * 0.001;
-
     cube.rotation.y = time * 0.001;
+
+    if (resizeRendererToDisplaySize(renderer)) {
+        const canvas = renderer.domElement;
+        camera.aspect = canvas.clientWidth / canvas.clientHeight;
+        camera.updateProjectionMatrix();
+    }
 
     renderer.render( scene, camera );
 };
 
+function resizeRendererToDisplaySize(renderer) {
+    const canvas = renderer.domElement;
+    const pixelRatio = window.devicePixelRatio;
+    const width  = canvas.clientWidth  * pixelRatio | 0;
+    const height = canvas.clientHeight * pixelRatio | 0;
+    const needResize = canvas.width !== width || canvas.height !== height;
+    if (needResize) {
+      renderer.setSize(width, height, false);
+    }
+    return needResize;
+}
