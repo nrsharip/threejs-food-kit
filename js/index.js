@@ -1,7 +1,7 @@
 "use strict"
 
 import * as THREE from 'three';
-import { Vector2 } from 'three';
+import { Vector2, Vector3 } from 'three';
 
 import { GLTFLoader } from 'https://unpkg.com/three@0.142.0/examples/jsm/loaders/GLTFLoader.js';
 
@@ -19,39 +19,22 @@ if ( !WebGLCheck.isWebGLAvailable() ) {
     throw new Error(warning.textContent);
 }
 
-const renderer = SETUP.setupRenderer();
-const camera = SETUP.setupPerspectiveCamera();
-const scene = SETUP.setupScene(); 
+const renderer = SETUP.setupRenderer('#main');
+const camera = SETUP.setupPerspectiveCamera('#main', new Vector3(0, 3, 10), new Vector3(0, 0, 0));
+const scene = SETUP.setupScene('#96b0bc'); // https://encycolorpedia.com/96b0bc
 const orbitControls = SETUP.setupOrbitControls(camera, renderer);
 
 // LIGHTS
 const dirLight = SETUP.setupDirLight();
 scene.add( dirLight );
-//const ambLight = SETUP.setupAmbLight();
-//scene.add(ambLight);
 
 // GROUND 
 const ground = MESH.makeGround();
 scene.add(ground);
 
-if (false) {
-    // HELPERS
-    // see https://threejs.org/manual/#en/lights
-    const dirLightHelper = new THREE.DirectionalLightHelper(dirLight);
-    scene.add(dirLightHelper);
-    // see https://threejs.org/manual/#en/shadows
-    const cameraHelper = new THREE.CameraHelper(dirLight.shadow.camera);
-    scene.add(cameraHelper);
-}
-
 // OBJECTS
 const gltfs = {}
 const gridCell = new Vector2(0, 0);
-
-// const cube = MESH.makeCube();
-// console.log("cube: ");
-// console.log(cube);
-// scene.add(cube);
 
 function render(time) {
     requestAnimationFrame( render );
@@ -60,7 +43,8 @@ function render(time) {
         gltf.scene.rotation.y = time * 0.001;
     }
 
-    if (resizeRendererToDisplaySize(renderer)) {
+    // see https://threejs.org/manual/#en/responsive
+    if (UTILS.resizeRendererToDisplaySize(renderer)) {
         const canvas = renderer.domElement;
         camera.aspect = canvas.clientWidth / canvas.clientHeight;
         camera.updateProjectionMatrix();
@@ -70,18 +54,6 @@ function render(time) {
 };
 
 requestAnimationFrame( render );
-
-function resizeRendererToDisplaySize(renderer) {
-    const canvas = renderer.domElement;
-    const pixelRatio = window.devicePixelRatio;
-    const width  = canvas.clientWidth  * pixelRatio | 0;
-    const height = canvas.clientHeight * pixelRatio | 0;
-    const needResize = canvas.width !== width || canvas.height !== height;
-    if (needResize) {
-      renderer.setSize(width, height, false);
-    }
-    return needResize;
-}
 
 function onGLTFLoad(glb) {
     let object3D = new THREE.Object3D(); // doing this so far to make VS Code recognise the Object3D methods
@@ -125,4 +97,14 @@ for (let glb of glbs) {
     loader.load( `assets/3d/foodKit_v1.2/Models/GLTF/${glb}`, onGLTFLoad(glb), undefined, function ( error ) {
         console.error( error );
     });
+}
+
+// HELPERS (set to true to enable)
+if (false) {
+    // see https://threejs.org/manual/#en/lights
+    const dirLightHelper = new THREE.DirectionalLightHelper(dirLight);
+    scene.add(dirLightHelper);
+    // see https://threejs.org/manual/#en/shadows
+    const cameraHelper = new THREE.CameraHelper(dirLight.shadow.camera);
+    scene.add(cameraHelper);
 }

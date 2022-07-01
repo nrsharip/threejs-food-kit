@@ -1,12 +1,13 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'https://unpkg.com/three@0.142.0/examples/jsm/controls/OrbitControls.js';
 
-function setupRenderer() {
+function setupRenderer(selector) {
     // see https://github.com/mrdoob/three.js/blob/dev/examples/physics_ammo_instancing.html
     // see https://threejs.org/docs/api/en/renderers/WebGLRenderer.html
-    const canvas = document.querySelector('#main');
+    const canvas = document.querySelector(selector);
     const renderer = new THREE.WebGLRenderer({canvas});
     // see also: https://usefulangle.com/post/12/javascript-going-fullscreen-is-rare
+    // see https://threejs.org/manual/#en/responsive
     // renderer.setPixelRatio( window.devicePixelRatio ); // This is strongly NOT RECOMMENDED
     renderer.setSize( canvas.clientWidth, canvas.clientHeight, false );
     // see https://threejs.org/manual/#en/shadows
@@ -16,22 +17,22 @@ function setupRenderer() {
     return renderer;
 }
 
-function setupPerspectiveCamera() {
+function setupPerspectiveCamera(selector, pos, look) {
     // see https://threejs.org/manual/#en/cameras
-    const canvas = document.querySelector('#main');
+    const canvas = document.querySelector(selector);
     const perspectiveCamera = new THREE.PerspectiveCamera( 50, canvas.clientWidth / canvas.clientHeight, 0.1, 1000 );
-    perspectiveCamera.position.x = 0;
-    perspectiveCamera.position.y = 3;
-    perspectiveCamera.position.z = 10;
-    perspectiveCamera.lookAt(0, 0, 0);
+    perspectiveCamera.position.x = pos.x;
+    perspectiveCamera.position.y = pos.y;
+    perspectiveCamera.position.z = pos.z;
+    perspectiveCamera.lookAt(look.x, look.y, look.z);
     return perspectiveCamera;
 }
 
-function setupScene() {
+function setupScene(bgColor) {
     // see https://threejs.org/manual/#en/load-gltf
     //     here's also a very useful example of Blender Scene processing 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color('#96b0bc'); // https://encycolorpedia.com/96b0bc
+    scene.background = new THREE.Color(bgColor);
     return scene;
 }
 
@@ -59,6 +60,7 @@ function setupDirLight() {
     dirLight.shadow.camera.near = 0.1;
     dirLight.shadow.camera.far = 30;
 
+    // see https://threejs.org/manual/#en/shadows
     // to avoid low-resolution shadows 
     dirLight.shadow.mapSize.width = 2048;
     dirLight.shadow.mapSize.height = 2048;
