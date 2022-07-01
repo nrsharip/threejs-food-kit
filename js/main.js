@@ -1,9 +1,11 @@
 "use strict"
 
 import * as THREE from 'three';
+import { Vector2 } from 'three';
 import WebGLCheck from './WebGL.js';
-import { GLTFLoader } from 'https://unpkg.com/three@0.141.0/examples/jsm/loaders/GLTFLoader.js';
-import { OrbitControls } from 'https://unpkg.com/three@0.141.0/examples/jsm/controls/OrbitControls.js';
+import { GLTFLoader } from 'https://unpkg.com/three@0.142.0/examples/jsm/loaders/GLTFLoader.js';
+import { OrbitControls } from 'https://unpkg.com/three@0.142.0/examples/jsm/controls/OrbitControls.js';
+import { glbs } from './glbs.js';
 
 // see https://threejs.org/docs/index.html#manual/en/introduction/WebGL-compatibility-check
 if ( !WebGLCheck.isWebGLAvailable() ) {
@@ -32,8 +34,8 @@ function setupPerspectiveCamera() {
     const canvas = document.querySelector('#main');
     const perspectiveCamera = new THREE.PerspectiveCamera( 50, canvas.clientWidth / canvas.clientHeight, 0.1, 1000 );
     perspectiveCamera.position.x = 0;
-    perspectiveCamera.position.y = 1;
-    perspectiveCamera.position.z = 2;
+    perspectiveCamera.position.y = 3;
+    perspectiveCamera.position.z = 10;
     perspectiveCamera.lookAt(0, 0, 0);
     return perspectiveCamera;
 }
@@ -57,16 +59,16 @@ function setupDirLight() {
     dirLight.intensity = 1.2;
 
     // Shadows (see https://threejs.org/manual/#en/shadows)
-    dirLight.castShadow = true;
+    //dirLight.castShadow = true;
     dirLight.shadow.camera.position.x = 10;
     dirLight.shadow.camera.position.y = 10;
     dirLight.shadow.camera.position.z = 10;
     dirLight.shadow.camera.lookAt(0, 0, 0);
 
-    dirLight.shadow.camera.top = 4;
-    dirLight.shadow.camera.bottom = -4;
-    dirLight.shadow.camera.left = -4;
-    dirLight.shadow.camera.right = 4;
+    dirLight.shadow.camera.top = 10;
+    dirLight.shadow.camera.bottom = -10;
+    dirLight.shadow.camera.left = -10;
+    dirLight.shadow.camera.right = 10;
     dirLight.shadow.camera.near = 0.1;
     dirLight.shadow.camera.far = 30;
 
@@ -113,7 +115,7 @@ function makeCube() {
 }
 
 function makeGround() {
-    const planeSize = 10;
+    const planeSize = 15;
     // see https://threejs.org/manual/#en/lights
     const loader = new THREE.TextureLoader();
     const texture = loader.load('assets/images/checker.png');
@@ -129,7 +131,7 @@ function makeGround() {
         map: texture,
         side: THREE.DoubleSide,
     });
-    planeMat.color.setRGB(1.7, 1.7, 1.7); // see https://threejs.org/manual/#en/shadows
+    planeMat.color.setRGB(1.3, 1.3, 1.3); // see https://threejs.org/manual/#en/shadows
 
     const mesh = new THREE.Mesh(planeGeo, planeMat);
     mesh.rotation.x = Math.PI * -.5;
@@ -148,64 +150,38 @@ const orbitControls = setupOrbitControls(camera, renderer);
 // LIGHTS
 const dirLight = setupDirLight();
 scene.add( dirLight );
-const ambLight = setupAmbLight();
+//const ambLight = setupAmbLight();
 //scene.add(ambLight);
 
-// HELPERS
-// see https://threejs.org/manual/#en/lights
-const dirLightHelper = new THREE.DirectionalLightHelper(dirLight);
-scene.add(dirLightHelper);
-// see https://threejs.org/manual/#en/shadows
-const cameraHelper = new THREE.CameraHelper(dirLight.shadow.camera);
-scene.add(cameraHelper);
-
-// OBJECTS
-const cube = makeCube();
-console.log("cube: ");
-console.log(cube);
-scene.add(cube);
-
+// GROUND 
 const ground = makeGround();
 scene.add(ground);
 
-let apple = new THREE.Object3D();
-// see https://threejs.org/docs/index.html#manual/en/introduction/Loading-3D-models
-const loader = new GLTFLoader();
-loader.load( 'assets/3d/foodKit_v1.2/Models/GLTF/apple.glb', function ( gltf ) {
-    
-    console.log("gltf: ");
-    console.log(gltf);
+if (false) {
+    // HELPERS
+    // see https://threejs.org/manual/#en/lights
+    const dirLightHelper = new THREE.DirectionalLightHelper(dirLight);
+    scene.add(dirLightHelper);
+    // see https://threejs.org/manual/#en/shadows
+    const cameraHelper = new THREE.CameraHelper(dirLight.shadow.camera);
+    scene.add(cameraHelper);
+}
 
-    if (gltf && gltf.scene && gltf.scene instanceof THREE.Object3D) {
-        apple = Object.assign(gltf.scene);
-        apple.traverse(function(object) {
-            if (object.isMesh) {
-                // see https://threejs.org/manual/#en/shadows
-                object.castShadow = true;
-                object.receiveShadow = true;
+// OBJECTS
+const gltfs = {}
+const gridCell = new Vector2(0, 0);
 
-                // see https://threejs.org/manual/#en/materials
-                //     table with roughness from 0 to 1 across and metalness from 0 to 1 down.
-                object.material.roughness = 0.57; // the value is out of Chrome Console debug
-                object.material.metalness = 0; // the value is out of Chrome Console debug
-            }
-        })
-        console.log("apple:");
-        console.log(apple);
-        
-        scene.add( apple );
-    }
-
-    requestAnimationFrame( render );
-}, undefined, function ( error ) {
-    console.error( error );
-} );
+// const cube = makeCube();
+// console.log("cube: ");
+// console.log(cube);
+// scene.add(cube);
 
 function render(time) {
     requestAnimationFrame( render );
 
-    apple.rotation.y = time * 0.001;
-    cube.rotation.y = time * 0.001;
+    for (let gltf of Object.values(gltfs)) {
+        gltf.scene.rotation.y = time * 0.001;
+    }
 
     if (resizeRendererToDisplaySize(renderer)) {
         const canvas = renderer.domElement;
@@ -215,6 +191,8 @@ function render(time) {
 
     renderer.render( scene, camera );
 };
+
+requestAnimationFrame( render );
 
 function resizeRendererToDisplaySize(renderer) {
     const canvas = renderer.domElement;
@@ -226,4 +204,64 @@ function resizeRendererToDisplaySize(renderer) {
       renderer.setSize(width, height, false);
     }
     return needResize;
+}
+
+function onGLTFLoad(glb) {
+    let object3D = new THREE.Object3D(); // doing this so far to make VS Code recognise the Object3D methods
+
+    return function ( gltf ) {
+        console.log(`GLTF ${glb}: `);
+        console.log(gltf);
+        gltfs[glb] = gltf;
+
+        if (gltf && gltf.scene && gltf.scene instanceof THREE.Object3D) {
+            object3D = Object.assign(gltf.scene);
+            object3D.traverse(function(object) {
+                if (object.isMesh) {
+                    // see https://threejs.org/manual/#en/shadows
+                    object.castShadow = true;
+                    object.receiveShadow = true;
+    
+                    // see https://threejs.org/manual/#en/materials
+                    //     table with roughness from 0 to 1 across and metalness from 0 to 1 down.
+                    object.material.roughness = 0.57; // the value is out of Chrome Console debug
+                    object.material.metalness = 0; // the value is out of Chrome Console debug
+                }
+            })
+            console.log(`object3D ${glb}: `);
+            console.log(object3D);
+
+            object3D.position.x = gridCell.x;
+            object3D.position.y = 0.2;
+            object3D.position.z = gridCell.y;
+
+            spiralGetNext(gridCell);
+
+            scene.add( object3D );
+        }
+    }
+}
+
+// see https://threejs.org/docs/index.html#manual/en/introduction/Loading-3D-models
+const loader = new GLTFLoader();
+for (let glb of glbs) {
+    loader.load( `assets/3d/foodKit_v1.2/Models/GLTF/${glb}`, onGLTFLoad(glb), undefined, function ( error ) {
+        console.error( error );
+    });
+}
+
+// Ported from:
+// https://github.com/nrsharip/hammergenics/blob/ecf9b7bb1c7037e3705000a586dca0559928e512/core/src/com/hammergenics/HGUtils.java#L1004
+function spiralGetNext(inOut) {
+    let tmp = new Vector2(0, 0);
+    let i = 0, j;
+
+    while (i < 50) { // to avoid any unnecessary infinite looping
+        i++;
+        for (j = 0; j < i; j++) { if (tmp.equals(inOut)) { return inOut.sub(new Vector2(0, 1)); } else { tmp.y--; } }
+        for (j = 0; j < i; j++) { if (tmp.equals(inOut)) { return inOut.sub(new Vector2(1, 0)); } else { tmp.x--; } }
+        i++;
+        for (j = 0; j < i; j++) { if (tmp.equals(inOut)) { return inOut.add(new Vector2(0, 1)); } else { tmp.y++; } }
+        for (j = 0; j < i; j++) { if (tmp.equals(inOut)) { return inOut.add(new Vector2(1, 0)); } else { tmp.x++; } }
+    }
 }
