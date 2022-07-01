@@ -19,8 +19,8 @@ if ( !WebGLCheck.isWebGLAvailable() ) {
     throw new Error(warning.textContent);
 }
 
-const renderer = SETUP.setupRenderer('#main');
-const camera = SETUP.setupPerspectiveCamera('#main', new Vector3(0, 3, 10), new Vector3(0, 0, 0));
+const renderer = SETUP.setupRenderer('#mainCanvas');
+const camera = SETUP.setupPerspectiveCamera('#mainCanvas', new Vector3(0, 3, 10), new Vector3(0, 0, 0));
 const scene = SETUP.setupScene('#96b0bc'); // https://encycolorpedia.com/96b0bc
 const orbitControls = SETUP.setupOrbitControls(camera, renderer);
 
@@ -59,8 +59,8 @@ function onGLTFLoad(glb) {
     let object3D = new THREE.Object3D(); // doing this so far to make VS Code recognise the Object3D methods
 
     return function ( gltf ) {
-        console.log(`GLTF ${glb}: `);
-        console.log(gltf);
+        // console.log(`GLTF ${glb}: `);
+        // console.log(gltf);
         gltfs[glb] = gltf;
 
         if (gltf && gltf.scene && gltf.scene instanceof THREE.Object3D) {
@@ -77,8 +77,8 @@ function onGLTFLoad(glb) {
                     object.material.metalness = 0; // the value is out of Chrome Console debug
                 }
             })
-            console.log(`object3D ${glb}: `);
-            console.log(object3D);
+            // console.log(`object3D ${glb}: `);
+            // console.log(object3D);
 
             object3D.position.x = gridCell.x;
             object3D.position.y = 0.2;
@@ -107,4 +107,26 @@ if (false) {
     // see https://threejs.org/manual/#en/shadows
     const cameraHelper = new THREE.CameraHelper(dirLight.shadow.camera);
     scene.add(cameraHelper);
+}
+
+// KEYBOARD INPUT
+// https://developer.mozilla.org/en-US/docs/Web/API/Document/keydown_event
+// https://subscription.packtpub.com/book/web-development/9781783981182/1/ch01lvl1sec22/adding-keyboard-controls
+document.addEventListener('keydown', onKeyDown);
+
+function onKeyDown(e) {
+  console.log(e);
+  switch (e.code) {
+    case 'Escape':
+        document.getElementById("mainMenu").style.display = "block";
+        break;
+  }
+}
+
+// MENU
+document.getElementById("startButton").addEventListener("click", onClickStart, false);
+
+// On Click: Start
+function onClickStart() {
+	document.getElementById("mainMenu").style.display = "none";
 }
