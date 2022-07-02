@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { Vector2, Vector3 } from 'three';
 
 import { glbs } from './glbs.js';
+import * as PHYSICS from './physics.js'
 import * as KEYBOARD from './keyboard.js'
 import * as MENU from './menu.js'
 import * as GLTFS from './gltfs.js'
@@ -24,26 +25,33 @@ const camera = SETUP.setupPerspectiveCamera('#mainCanvas', new Vector3(0, 3, 10)
 const scene = SETUP.setupScene('#96b0bc'); // https://encycolorpedia.com/96b0bc
 const orbitControls = SETUP.setupOrbitControls(camera, renderer);
 
-// SCENE OBJECTS
-const dirLight = SETUP.setupDirLight(); // LIGHTS
-scene.add(dirLight);
-const ground = MESH.makeGround();       // GROUND 
-scene.add(ground);
+Ammo().then(function ( AmmoLib ) {
+    Ammo = AmmoLib;
 
-// Loading GLTFs
-const gridCell = new Vector2(0, 0);
-GLTFS.queueFileNames(glbs, function(filename, gltf) {
-    // console.log(`GLTF ${filename}: `);
-    // console.log(gltf);
-    gltf.scene.position.x = gridCell.x;
-    gltf.scene.position.y = 0.2;
-    gltf.scene.position.z = gridCell.y;
+    PHYSICS.init();
+    PHYSICS.dynamicsWorld.setGravity( new Ammo.btVector3( 0, -9.8, 0 ) );
 
-    UTILS.spiralGetNext(gridCell);
-    scene.add( gltf.scene );
-});
+    // SCENE OBJECTS
+    const dirLight = SETUP.setupDirLight(); // LIGHTS
+    scene.add(dirLight);
+    const ground = MESH.makeGround();       // GROUND 
+    scene.add(ground);
 
-requestAnimationFrame( render );
+    // Loading GLTFs
+    const gridCell = new Vector2(0, 0);
+    GLTFS.queueFileNames(glbs, function(filename, gltf) {
+        // console.log(`GLTF ${filename}: `);
+        // console.log(gltf);
+        gltf.scene.position.x = gridCell.x;
+        gltf.scene.position.y = 0.2;
+        gltf.scene.position.z = gridCell.y;
+
+        UTILS.spiralGetNext(gridCell);
+        scene.add( gltf.scene );
+    });
+
+    requestAnimationFrame( render );
+})
 
 function render(time) {
     requestAnimationFrame( render );
