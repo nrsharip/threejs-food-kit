@@ -8,8 +8,8 @@ import * as PHYSICS from './physics.js'
 import * as KEYBOARD from './keyboard.js'
 import * as MENU from './menu.js'
 import * as GLTFS from './gltfs.js'
-import * as SETUP from './setup.js'
-import * as MESH from './mesh.js'
+import * as GRAPHICS from './graphics.js'
+import * as PRIMITIVES from './primitives.js'
 import * as UTILS from './utils.js'
 import WebGLCheck from './lib/WebGL.js';
 
@@ -19,11 +19,12 @@ if ( !WebGLCheck.isWebGLAvailable() ) {
     document.body.appendChild( warning );
     throw new Error(warning.textContent);
 }
+
 // GRAPHICS INIT
-const renderer = SETUP.setupRenderer('#mainCanvas');
-const camera = SETUP.setupPerspectiveCamera('#mainCanvas', new Vector3(0, 3, 10), new Vector3(0, 0, 0));
-const scene = SETUP.setupScene('#96b0bc'); // https://encycolorpedia.com/96b0bc
-const orbitControls = SETUP.setupOrbitControls(camera, renderer);
+const renderer = GRAPHICS.setupRenderer('#mainCanvas');
+const camera = GRAPHICS.setupPerspectiveCamera('#mainCanvas', new Vector3(0, 3, 10), new Vector3(0, 0, 0));
+const scene = GRAPHICS.setupScene('#96b0bc'); // https://encycolorpedia.com/96b0bc
+const orbitControls = GRAPHICS.setupOrbitControls(camera, renderer);
 
 Ammo().then(function ( AmmoLib ) {
     Ammo = AmmoLib;
@@ -32,16 +33,16 @@ Ammo().then(function ( AmmoLib ) {
     PHYSICS.dynamicsWorld.setGravity( new Ammo.btVector3( 0, -9.8, 0 ) );
 
     // SCENE OBJECTS
-    const dirLight = SETUP.setupDirLight(); // LIGHTS
+    const dirLight = GRAPHICS.setupDirLight(); // LIGHTS
     scene.add(dirLight);
-    const ground = MESH.makeGround();       // GROUND 
+    const ground = PRIMITIVES.makeGround();       // GROUND 
     scene.add(ground);
 
     // Loading GLTFs
     const gridCell = new Vector2(0, 0);
     GLTFS.queueFileNames("assets/3d/foodKit_v1.2/Models/GLTF/", glbs, function(filename, gltf) {
-        // console.log(`GLTF ${filename}: `);
-        // console.log(gltf);
+        console.log(`GLTF ${filename}: `);
+        console.log(gltf);
         gltf.scene.position.x = gridCell.x;
         gltf.scene.position.y = 0.2;
         gltf.scene.position.z = gridCell.y;
