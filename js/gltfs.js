@@ -4,9 +4,9 @@ import { GLTFLoader } from 'https://unpkg.com/three@0.142.0/examples/jsm/loaders
 const loaded = {}
 const loader = new GLTFLoader(); // see https://threejs.org/docs/index.html#manual/en/introduction/Loading-3D-models
 
-function queueFileNames(filenames, onLoad) {
+function queueFileNames(prefix, filenames, onLoad) {
     for (let filename of filenames) {
-        loader.load( `assets/3d/foodKit_v1.2/Models/GLTF/${filename}`, onGLTFLoad(filename, onLoad), undefined, function ( error ) {
+        loader.load( `${prefix}${filename}`, onGLTFLoad(filename, onLoad), undefined, function ( error ) {
             console.error( error );
         });
     }

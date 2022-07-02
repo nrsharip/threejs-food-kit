@@ -39,7 +39,7 @@ Ammo().then(function ( AmmoLib ) {
 
     // Loading GLTFs
     const gridCell = new Vector2(0, 0);
-    GLTFS.queueFileNames(glbs, function(filename, gltf) {
+    GLTFS.queueFileNames("assets/3d/foodKit_v1.2/Models/GLTF/", glbs, function(filename, gltf) {
         // console.log(`GLTF ${filename}: `);
         // console.log(gltf);
         gltf.scene.position.x = gridCell.x;
