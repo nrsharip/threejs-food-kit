@@ -1,3 +1,7 @@
+## Info
+
+<img src="docs/vertices_indices.png.png?raw=true" width="100%">
+
 ## Notes
 
 To avoid CORS errors with external files:
