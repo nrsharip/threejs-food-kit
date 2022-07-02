@@ -29,8 +29,9 @@ function onGLTFLoad(filename, onLoad) {
                     object.material.metalness = 0; // the value is out of Chrome Console debug
                 }
             })
-            onLoad(filename, gltf);
         }
+        
+        onLoad(filename, gltf);
     }
 }
 

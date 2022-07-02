@@ -18,31 +18,24 @@ function makeCube() {
 }
 
 function makeGround() {
-    const planeSize = 15;
-    // see https://threejs.org/manual/#en/lights
-    const loader = new THREE.TextureLoader();
-    const texture = loader.load('assets/images/grid.png');
-    texture.wrapS = THREE.RepeatWrapping;
-    texture.wrapT = THREE.RepeatWrapping;
-    texture.magFilter = THREE.NearestFilter;
-    const repeats = 4 * planeSize;
-    texture.repeat.set(repeats, repeats);
+    const geometry = new THREE.BoxGeometry( 40, 0.1, 40, 1, 1, 1 );
+    const material = new THREE.MeshPhongMaterial( { color: 0xFFFFFF } );
+    const ground = new THREE.Mesh(geometry, material);
+    ground.receiveShadow = true;
 
-    // see https://threejs.org/manual/#en/lights
-    const planeGeo = new THREE.PlaneGeometry(planeSize, planeSize);
-    const planeMat = new THREE.MeshPhongMaterial({
-        map: texture,
-        side: THREE.DoubleSide,
+    const textureLoader = new THREE.TextureLoader();
+    textureLoader.load( 'assets/images/grid.png', function ( texture ) {
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
+        texture.magFilter = THREE.NearestFilter;
+        texture.repeat.set( 40, 40 );
+
+        ground.material.map = texture;
+        ground.material.needsUpdate = true;
     });
-    planeMat.color.setRGB(1.3, 1.3, 1.3); // see https://threejs.org/manual/#en/shadows
+    ground.material.color.setRGB(1.3, 1.3, 1.3); // see https://threejs.org/manual/#en/shadows
 
-    const mesh = new THREE.Mesh(planeGeo, planeMat);
-    mesh.rotation.x = Math.PI * -.5;
-
-    // see https://threejs.org/manual/#en/shadows
-    mesh.receiveShadow = true;
-
-    return mesh;
+    return ground;
 }
 
 export {
