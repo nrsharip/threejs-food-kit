@@ -65,8 +65,6 @@ function setupDirLight() {
     dirLight.shadow.mapSize.width = 2048;
     dirLight.shadow.mapSize.height = 2048;
 
-    console.log("Direction Light: ");
-    console.log(dirLight);
     return dirLight;
 }
 

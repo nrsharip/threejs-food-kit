@@ -3,14 +3,14 @@
 import * as THREE from 'three';
 import { Vector2, Vector3 } from 'three';
 
-import { GLTFLoader } from 'https://unpkg.com/three@0.142.0/examples/jsm/loaders/GLTFLoader.js';
-
+import { glbs } from './glbs.js';
+import * as KEYBOARD from './keyboard.js'
+import * as MENU from './menu.js'
+import * as GLTFS from './gltfs.js'
 import * as SETUP from './setup.js'
 import * as MESH from './mesh.js'
 import * as UTILS from './utils.js'
-import { glbs } from './glbs.js';
-
-import WebGLCheck from './WebGL.js';
+import WebGLCheck from './lib/WebGL.js';
 
 // see https://threejs.org/docs/index.html#manual/en/introduction/WebGL-compatibility-check
 if ( !WebGLCheck.isWebGLAvailable() ) {
@@ -18,28 +18,37 @@ if ( !WebGLCheck.isWebGLAvailable() ) {
     document.body.appendChild( warning );
     throw new Error(warning.textContent);
 }
-
+// GRAPHICS INIT
 const renderer = SETUP.setupRenderer('#mainCanvas');
 const camera = SETUP.setupPerspectiveCamera('#mainCanvas', new Vector3(0, 3, 10), new Vector3(0, 0, 0));
 const scene = SETUP.setupScene('#96b0bc'); // https://encycolorpedia.com/96b0bc
 const orbitControls = SETUP.setupOrbitControls(camera, renderer);
 
-// LIGHTS
-const dirLight = SETUP.setupDirLight();
-scene.add( dirLight );
-
-// GROUND 
-const ground = MESH.makeGround();
+// SCENE OBJECTS
+const dirLight = SETUP.setupDirLight(); // LIGHTS
+scene.add(dirLight);
+const ground = MESH.makeGround();       // GROUND 
 scene.add(ground);
 
-// OBJECTS
-const gltfs = {}
+// Loading GLTFs
 const gridCell = new Vector2(0, 0);
+GLTFS.queueFileNames(glbs, function(filename, gltf) {
+    // console.log(`GLTF ${filename}: `);
+    // console.log(gltf);
+    gltf.scene.position.x = gridCell.x;
+    gltf.scene.position.y = 0.2;
+    gltf.scene.position.z = gridCell.y;
+
+    UTILS.spiralGetNext(gridCell);
+    scene.add( gltf.scene );
+});
+
+requestAnimationFrame( render );
 
 function render(time) {
     requestAnimationFrame( render );
 
-    for (let gltf of Object.values(gltfs)) {
+    for (let gltf of Object.values(GLTFS.loaded)) {
         gltf.scene.rotation.y = time * 0.001;
     }
 
@@ -53,74 +62,23 @@ function render(time) {
     renderer.render( scene, camera );
 };
 
-requestAnimationFrame( render );
+MENU.addEventListener("startButton", "click", function() {
+    document.getElementById("mainMenu").style.display = "none";
+});
 
-function onGLTFLoad(glb) {
-    return function ( gltf ) {
-        // console.log(`GLTF ${glb}: `);
-        // console.log(gltf);
-        gltfs[glb] = gltf;
-
-        if (gltf && gltf.scene && gltf.scene instanceof THREE.Object3D) {
-            gltf.scene.traverse(function(object) {
-                if (object.isMesh) {
-                    // see https://threejs.org/manual/#en/shadows
-                    object.castShadow = true;
-                    object.receiveShadow = true;
-    
-                    // see https://threejs.org/manual/#en/materials
-                    //     table with roughness from 0 to 1 across and metalness from 0 to 1 down.
-                    object.material.roughness = 0.57; // the value is out of Chrome Console debug
-                    object.material.metalness = 0; // the value is out of Chrome Console debug
-                }
-            })
-            gltf.scene.position.x = gridCell.x;
-            gltf.scene.position.y = 0.2;
-            gltf.scene.position.z = gridCell.y;
-
-            UTILS.spiralGetNext(gridCell);
-
-            scene.add( gltf.scene );
-        }
+KEYBOARD.addEventListener("keydown", function(e) {
+    console.log(e);
+    switch (e.code) {
+      case 'Escape':
+          document.getElementById("mainMenu").style.display = "block";
+          break;
     }
-}
+})
 
-// see https://threejs.org/docs/index.html#manual/en/introduction/Loading-3D-models
-const loader = new GLTFLoader();
-for (let glb of glbs) {
-    loader.load( `assets/3d/foodKit_v1.2/Models/GLTF/${glb}`, onGLTFLoad(glb), undefined, function ( error ) {
-        console.error( error );
-    });
-}
-
-// HELPERS (set to true to enable)
-if (false) {
-    // see https://threejs.org/manual/#en/lights
-    const dirLightHelper = new THREE.DirectionalLightHelper(dirLight);
-    scene.add(dirLightHelper);
-    // see https://threejs.org/manual/#en/shadows
-    const cameraHelper = new THREE.CameraHelper(dirLight.shadow.camera);
-    scene.add(cameraHelper);
-}
-
-// KEYBOARD INPUT
-// https://developer.mozilla.org/en-US/docs/Web/API/Document/keydown_event
-// https://subscription.packtpub.com/book/web-development/9781783981182/1/ch01lvl1sec22/adding-keyboard-controls
-document.addEventListener('keydown', onKeyDown);
-
-function onKeyDown(e) {
-  console.log(e);
-  switch (e.code) {
-    case 'Escape':
-        document.getElementById("mainMenu").style.display = "block";
-        break;
-  }
-}
-
-// MENU
-document.getElementById("startButton").addEventListener("click", onClickStart, false);
-
-// On Click: Start
-function onClickStart() {
-	document.getElementById("mainMenu").style.display = "none";
-}
+// // HELPERS
+// // see https://threejs.org/manual/#en/lights
+// const dirLightHelper = new THREE.DirectionalLightHelper(dirLight);
+// scene.add(dirLightHelper);
+// // see https://threejs.org/manual/#en/shadows
+// const cameraHelper = new THREE.CameraHelper(dirLight.shadow.camera);
+// scene.add(cameraHelper);

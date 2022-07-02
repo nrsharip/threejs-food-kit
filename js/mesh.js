@@ -21,11 +21,11 @@ function makeGround() {
     const planeSize = 15;
     // see https://threejs.org/manual/#en/lights
     const loader = new THREE.TextureLoader();
-    const texture = loader.load('assets/images/checker.png');
+    const texture = loader.load('assets/images/grid.png');
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
     texture.magFilter = THREE.NearestFilter;
-    const repeats = 2 * planeSize;
+    const repeats = 4 * planeSize;
     texture.repeat.set(repeats, repeats);
 
     // see https://threejs.org/manual/#en/lights
