@@ -56,16 +56,13 @@ function render(time) {
 requestAnimationFrame( render );
 
 function onGLTFLoad(glb) {
-    let object3D = new THREE.Object3D(); // doing this so far to make VS Code recognise the Object3D methods
-
     return function ( gltf ) {
         // console.log(`GLTF ${glb}: `);
         // console.log(gltf);
         gltfs[glb] = gltf;
 
         if (gltf && gltf.scene && gltf.scene instanceof THREE.Object3D) {
-            object3D = Object.assign(gltf.scene);
-            object3D.traverse(function(object) {
+            gltf.scene.traverse(function(object) {
                 if (object.isMesh) {
                     // see https://threejs.org/manual/#en/shadows
                     object.castShadow = true;
@@ -77,16 +74,13 @@ function onGLTFLoad(glb) {
                     object.material.metalness = 0; // the value is out of Chrome Console debug
                 }
             })
-            // console.log(`object3D ${glb}: `);
-            // console.log(object3D);
-
-            object3D.position.x = gridCell.x;
-            object3D.position.y = 0.2;
-            object3D.position.z = gridCell.y;
+            gltf.scene.position.x = gridCell.x;
+            gltf.scene.position.y = 0.2;
+            gltf.scene.position.z = gridCell.y;
 
             UTILS.spiralGetNext(gridCell);
 
-            scene.add( object3D );
+            scene.add( gltf.scene );
         }
     }
 }
