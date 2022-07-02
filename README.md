@@ -1,6 +1,6 @@
 ## Info
 
-<img src="docs/vertices_indices.png.png?raw=true" width="100%">
+<img src="docs/vertices_indices.png?raw=true" width="100%">
 
 ## Notes
 
