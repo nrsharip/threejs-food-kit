@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { Vector2, Vector3 } from 'three';
 
 import { glbs } from './glbs.js';
+import * as MESH from './mesh.js'
 import * as PHYSICS from './physics.js'
 import * as KEYBOARD from './keyboard.js'
 import * as MENU from './menu.js'
@@ -35,7 +36,7 @@ Ammo().then(function ( AmmoLib ) {
     // SCENE OBJECTS
     const dirLight = GRAPHICS.setupDirLight(); // LIGHTS
     scene.add(dirLight);
-    const ground = PRIMITIVES.makeGround();       // GROUND 
+    const ground = PRIMITIVES.makeGround();    // GROUND 
     scene.add(ground);
 
     // Loading GLTFs
@@ -43,9 +44,25 @@ Ammo().then(function ( AmmoLib ) {
     GLTFS.queueFileNames("assets/3d/foodKit_v1.2/Models/GLTF/", glbs, function(filename, gltf) {
         console.log(`GLTF ${filename}: `);
         console.log(gltf);
-        gltf.scene.position.x = gridCell.x;
-        gltf.scene.position.y = 0.2;
-        gltf.scene.position.z = gridCell.y;
+
+        // see https://threejs.org/docs/#manual/en/introduction/Matrix-transformations
+        gltf.scene.matrixAutoUpdate = false;
+
+        MESH.centerObject3D(gltf.scene);
+
+        // see https://threejs.org/docs/#manual/en/introduction/Matrix-transformations
+        let scale = 2.5;
+        gltf.scene.matrix.makeScale(scale, scale, scale);
+        gltf.scene.matrix.setPosition(
+            gridCell.x * scale, gltf.scene.userData.center.y * scale + 0.05, gridCell.y * scale
+        );
+        // When either the parent or the child object's transformation changes, you can request 
+        // that the child object's matrixWorld be updated by calling updateMatrixWorld().
+        gltf.scene.updateMatrixWorld();
+
+        // gltf.scene.position.x = gridCell.x;
+        // gltf.scene.position.y = 0.2;
+        // gltf.scene.position.z = gridCell.y;
 
         UTILS.spiralGetNext(gridCell);
         scene.add( gltf.scene );
@@ -57,9 +74,9 @@ Ammo().then(function ( AmmoLib ) {
 function render(time) {
     requestAnimationFrame( render );
 
-    for (let gltf of Object.values(GLTFS.loaded)) {
-        gltf.scene.rotation.y = time * 0.001;
-    }
+    // for (let gltf of Object.values(GLTFS.loaded)) {
+    //     gltf.scene.rotation.y = time * 0.001;
+    // }
 
     // see https://threejs.org/manual/#en/responsive
     if (UTILS.resizeRendererToDisplaySize(renderer)) {
@@ -76,7 +93,7 @@ MENU.addEventListener("startButton", "click", function() {
 });
 
 KEYBOARD.addEventListener("keydown", function(e) {
-    console.log(e);
+    //console.log(e);
     switch (e.code) {
       case 'Escape':
           document.getElementById("mainMenu").style.display = "block";

@@ -6,7 +6,7 @@
 // 3. Replace: "$1.glb",
 // (see also https://stackoverflow.com/questions/43577528/visual-studio-code-search-and-replace-with-regular-expressions)
 
-export const glbs = [
+export const glbs = [ //"../../../cube.glb"
     "apple.glb",                  "appleHalf.glb",
     "avocado.glb",                "avocadoHalf.glb",
     "bacon.glb",                  "baconRaw.glb",
