@@ -47,15 +47,16 @@ function centerObject3D(object) {
         calculateBoundingBoxAndCenter(object)
     }
 
-    object.traverse(function(child) {
-        if (child.isMesh) {
-            // Centering the object by subtracting the BB's center from the Mesh's children position.
-            // This is necessary since the top-level Object3D is expected to be the Group object
-            // with no matrix auto-update. So changing the position in children (with auto-update ON)
-            // will do the trick of having position(0,0,0) and matrix.position(0,0,0) and object centered
-            child.position.sub(object["userData"].center);
-        }
-    })
+    // The shift to origin is only required for the direct descendants of the root.
+    // The rest of the children down the scene graph will pick up updates automatically.
+    for (let child of object.children) {
+        // Centering the object by subtracting the BB's center from the Mesh's children position.
+        // This is necessary since the top-level Object3D is expected to be the Group object
+        // with no matrix auto-update. So changing the position in children (with auto-update ON)
+        // will do the trick of having the root element's position(0,0,0) and matrix.position(0,0,0) 
+        // and object centered to origin
+        child.position.sub(object["userData"].center);
+    };
 }
 
 export { calculateBoundingBoxAndCenter, centerObject3D }
