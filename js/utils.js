@@ -1,4 +1,13 @@
+import * as THREE from 'three';
 import { Vector2 } from 'three';
+
+const tmpM1 = new THREE.Matrix4();
+const tmpM2 = new THREE.Matrix4();
+const tmpM3 = new THREE.Matrix4();
+
+const tmpEuler1 = new THREE.Euler();
+const tmpEuler2 = new THREE.Euler();
+const tmpEuler3 = new THREE.Euler();
 
 // see https://threejs.org/manual/#en/responsive
 function resizeRendererToDisplaySize(renderer) {
@@ -29,4 +38,9 @@ function spiralGetNext(inOut) {
     }
 }
 
-export { resizeRendererToDisplaySize, spiralGetNext }
+export { 
+    resizeRendererToDisplaySize, 
+    spiralGetNext, 
+    tmpM1, tmpM2, tmpM3,
+    tmpEuler1, tmpEuler2, tmpEuler3
+}

@@ -21,9 +21,11 @@ if ( !WebGLCheck.isWebGLAvailable() ) {
     throw new Error(warning.textContent);
 }
 
+const clock = new THREE.Clock();
+
 // GRAPHICS INIT
 const renderer = GRAPHICS.setupRenderer('#mainCanvas');
-const camera = GRAPHICS.setupPerspectiveCamera('#mainCanvas', new Vector3(0, 3, 10), new Vector3(0, 0, 0));
+const camera = GRAPHICS.setupPerspectiveCamera('#mainCanvas', new Vector3(0, 6, 20), new Vector3(0, 0, 0));
 const scene = GRAPHICS.setupScene('#96b0bc'); // https://encycolorpedia.com/96b0bc
 const orbitControls = GRAPHICS.setupOrbitControls(camera, renderer);
 
@@ -45,24 +47,22 @@ Ammo().then(function ( AmmoLib ) {
         console.log(`GLTF ${filename}: `);
         console.log(gltf);
 
+        MESH.centerObject3D(gltf.scene);
+
         // see https://threejs.org/docs/#manual/en/introduction/Matrix-transformations
         gltf.scene.matrixAutoUpdate = false;
-
-        MESH.centerObject3D(gltf.scene);
 
         // see https://threejs.org/docs/#manual/en/introduction/Matrix-transformations
         let scale = 2.5;
         gltf.scene.matrix.makeScale(scale, scale, scale);
         gltf.scene.matrix.setPosition(
-            gridCell.x * scale, gltf.scene.userData.center.y * scale + 0.05, gridCell.y * scale
+            // 0.05 is half-height of the ground
+            gridCell.x * scale, gltf.scene.userData.center.y * scale + 0.05 + 0.1, gridCell.y * scale 
         );
+
         // When either the parent or the child object's transformation changes, you can request 
         // that the child object's matrixWorld be updated by calling updateMatrixWorld().
         gltf.scene.updateMatrixWorld();
-
-        // gltf.scene.position.x = gridCell.x;
-        // gltf.scene.position.y = 0.2;
-        // gltf.scene.position.z = gridCell.y;
 
         UTILS.spiralGetNext(gridCell);
         scene.add( gltf.scene );
@@ -71,12 +71,19 @@ Ammo().then(function ( AmmoLib ) {
     requestAnimationFrame( render );
 })
 
-function render(time) {
+function render(timeElapsed) {
     requestAnimationFrame( render );
 
-    // for (let gltf of Object.values(GLTFS.loaded)) {
-    //     gltf.scene.rotation.y = time * 0.001;
-    // }
+    const timeDelta = clock.getDelta();
+    // making a Y-rotation matrix
+    // see https://threejs.org/docs/#api/en/math/Matrix4.makeRotationY
+    UTILS.tmpM1.makeRotationY(timeDelta * Math.PI / 2); // 90 degrees / 1 sec
+    for (let gltf of Object.values(GLTFS.loaded)) {
+        // post-multiplying the object's matrix by rotation matrix we apply the rotation
+        gltf.scene.matrix.multiply(UTILS.tmpM1);
+        // now we need to update the whole scene graph children accordnigly
+        gltf.scene.updateMatrixWorld();
+    }
 
     // see https://threejs.org/manual/#en/responsive
     if (UTILS.resizeRendererToDisplaySize(renderer)) {
