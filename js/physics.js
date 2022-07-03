@@ -254,9 +254,8 @@ function update( deltaTime ) {
         const userData0 = object0 ? object0.userData : null;
         const userData1 = object1 ? object1.userData : null;
 
-        tmpBtVector1.setValue(0, 200, 0);
-        if (userData0.name == "ground") { rb1.applyCentralForce(tmpBtVector1); }
-        if (userData1.name == "ground") { rb0.applyCentralForce(tmpBtVector1); }
+        if (userData0) { userData0?.onCollision?.(object1); }
+        if (userData1) { userData1?.onCollision?.(object0); }
     }
 }
 

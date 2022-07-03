@@ -61,6 +61,13 @@ Ammo().then(function ( AmmoLib ) {
         gltf.scene.position.y = gltf.scene.userData.center.y + 0.05 + 0.1;
         gltf.scene.position.z = gridCell.y;
         gltf.scene.userData.boundingBox.getSize(UTILS.tmpV1);
+        gltf.scene.userData.onCollision = function(that) {
+            if (that && that.userData) {
+                if (that.userData?.name == "ground") {
+                    PHYSICS.applyCentralForce(gltf.scene, UTILS.tmpV1.set(0, 200, 0));
+                }
+            }
+        }
 
         PHYSICS.addObject(gltf.scene, 10, UTILS.tmpV1, 0.05);
         scene.add( gltf.scene );
@@ -87,7 +94,7 @@ function render(timeElapsed) {
             PHYSICS.update(timeDelta);
 
             for (let gltf of Object.values(GLTFS.loaded)) {
-                if (gltf.scene.position.y < 0) {
+                if (gltf.scene.position.y < -3) {
                     PHYSICS.setLinearAndAngularVelocity(gltf.scene, UTILS.tmpV1.set(0,0,0), UTILS.tmpV2.set(0,0,0));
                     PHYSICS.makeTranslationAndRotation(gltf.scene, UTILS.tmpV1.set(0,3,0), UTILS.tmpQuat1.identity());
                 }
