@@ -118,28 +118,36 @@ MENU.addEventListener("startButton", "click", function() {
     GAME.state.phase = GAME.PHASES.STARTED;
 });
 
+MENU.addEventListener("menuMobile", "click", function() {
+    processPause();
+});
+
 KEYBOARD.addEventListener("keydown", function(e) {
     //console.log(e);
     switch (e.code) {
         case 'Escape':
-            switch (GAME.state.phase) {
-                case GAME.PHASES.INIT:
-                    break;
-                case GAME.PHASES.STARTED:
-                    MENU.get("startButton").textContent = "Resume";
-                    document.getElementById("mainMenu").style.display = "block";
-
-                    GAME.state.phase = GAME.PHASES.PAUSED;
-                    break;
-                case GAME.PHASES.PAUSED:
-                    document.getElementById("mainMenu").style.display = "none";
-
-                    GAME.state.phase = GAME.PHASES.STARTED;
-                    break;
-            }
+            processPause();
             break;
     }
 })
+
+function processPause() {
+    switch (GAME.state.phase) {
+        case GAME.PHASES.INIT:
+            break;
+        case GAME.PHASES.STARTED:
+            MENU.get("startButton").textContent = "Resume";
+            document.getElementById("mainMenu").style.display = "block";
+
+            GAME.state.phase = GAME.PHASES.PAUSED;
+            break;
+        case GAME.PHASES.PAUSED:
+            document.getElementById("mainMenu").style.display = "none";
+
+            GAME.state.phase = GAME.PHASES.STARTED;
+            break;
+    }
+}
 
 // // HELPERS
 // // see https://threejs.org/manual/#en/lights

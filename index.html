@@ -25,6 +25,13 @@
 				color: white;
 				font-family: monospace;
 			}
+			#menuMobile {
+				position: absolute;
+				left: 10px;
+				top: 10px;
+				display: none;
+				z-index: 2;
+			}
 
 			/* MENU RELATED */
 			.menu {
@@ -36,11 +43,23 @@
 			/* https://stackoverflow.com/questions/558721/css-classes-subclasses */
 			.menu .columnSide { width: 40%; }
 			.menu .columnMain { width: 20%; }
+			.menu .columnMain .title { 
+				padding: 10px;
+				padding-left: 0;
+				padding-right: 0;
+
+				color: white;
+				font-family: Courier;
+				font-size: 12pt;
+				font-weight: bold;
+				text-align: center;
+			}
 			.menu .columnMain .menuButton {
 				width: 100%;
 				min-width: 200px;
 				min-height: 30px;
 
+				color: black;
 				font-family: Courier;
 				font-size: 12pt;
 				font-weight: bold;
@@ -51,25 +70,35 @@
 			/* Responsive layout - when the screen is less than 600px wide, 
 			 * make the three columns stack on top of each other instead of next to each other 
 			 */
-			@media only screen and (max-width: 1100px) {
+			@media screen and (max-width: 1100px) {
 				.menu .columnSide { width: 10%; }
 				.menu .columnMain { width: 80%; }
+				.menu .columnMain .title { font-size: 24pt; }
 				.menu .columnMain .menuButton { min-height: 60px; font-size: 24pt; }
 				/* see also:
 				 * https://github.com/nrsharip/iss-web/blob/e8ca66ade3933dfac4795ba7c44e067c26a079e2/moex/templates/moex/index.html#L27
 				 * https://github.com/nrsharip/iss-web/blob/e8ca66ade3933dfac4795ba7c44e067c26a079e2/moex/templates/moex/index.html#L86
 				 * https://github.com/nrsharip/iss-web/blob/e8ca66ade3933dfac4795ba7c44e067c26a079e2/moex/templates/moex/index.html#L238
 				 */
+				#menuMobile { display: block; }
 			}
 		</style>
 	</head>
 	<body>
 		<canvas id="mainCanvas"></canvas>
 		<!-- <div id="info"></div> -->
-
+		<img id="menuMobile" src="assets/images/menu_shadedDark33.png">
 		<!-- https://stackoverflow.com/questions/47344626/put-a-table-in-a-canvas-in-html -->
 		<table id="mainMenu" class="menu">
-			<tr height="20px"></tr>
+			<tr>
+				<td class="columnSide"></td>
+				<td class="columnMain">
+					<div class="title">
+						<a href="https://kenney.nl/assets/food-kit">Food Kit</a> (powered by <a href="https://threejs.org/">Three.js</a>)
+					</div>
+				</td>
+				<td class="columnSide"></td>
+			</tr>
 			<tr>
 				<td class="columnSide"></td>
 				<td class="columnMain">
