@@ -1,6 +1,6 @@
 ## Overview
 
-This project is created as part of the deep dive into [Three.js](https://threejs.org/) framework. [Food Kit](https://kenney.nl/assets/food-kit) assets produced and distributed by [Kenney](https://kenney.nl/). Following are the the tutrorials and examples that have been useful during the course of the project:
+This project is created as part of the deep dive into [Three.js](https://threejs.org/) framework. [Food Kit](https://kenney.nl/assets/food-kit) assets produced and distributed by [Kenney](https://kenney.nl/). Following are the the tutrorials and examples that were useful during the course of the project:
 
 [Three.js Manual](https://threejs.org/docs/index.html#manual/en/introduction/Creating-a-scene)
 ● [Three.js Fundamentals](https://threejs.org/manual/#en/fundamentals)
