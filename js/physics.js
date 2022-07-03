@@ -77,6 +77,16 @@ function init() {
     tmpBtVector1 = new Ammo.btVector3( 0, 0, 0 );
 }
 
+function addObject(object, mass, dimensions, margin) {
+    const shape = new Ammo.btBoxShape( new Ammo.btVector3( dimensions.x * 0.5, dimensions.y * 0.5, dimensions.z * 0.5 ) );
+    shape.setMargin( margin ); // 0.05
+    let rb = createRigidBody(object, shape, mass, null, null, null, null);
+
+    const btVecUserData = new Ammo.btVector3( 0, 0, 0 );
+    btVecUserData.threeObject = object;
+    rb.setUserPointer( btVecUserData );
+}
+
 // https://github.com/mrdoob/three.js/blob/36d88b4518de31125c7fda6a36ff8f5f524d97f7/examples/physics_ammo_break.html#L312
 function createRigidBody( object, shape, mass, pos, quat, vel, angVel ) {
     if ( pos ) { object.position.copy( pos ); } else { pos = object.position; }
@@ -170,6 +180,7 @@ export {
     constraintSolver,
     dynamicsWorld,
     init,
+    addObject,
     createRigidBody,
     update,
 }

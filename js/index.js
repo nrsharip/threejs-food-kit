@@ -47,14 +47,7 @@ Ammo().then(function ( AmmoLib ) {
     const ground = PRIMITIVES.makeGround(w, h, d);
     ground["userData"].name = "ground";
 
-    const shape = new Ammo.btBoxShape( new Ammo.btVector3( w * 0.5, h * 0.5, d * 0.5 ) );
-    shape.setMargin( 0.05 );
-    let rb = PHYSICS.createRigidBody(ground, shape, 0, null, null, null, null);
-
-    const btVecUserData = new Ammo.btVector3( 0, 0, 0 );
-    btVecUserData.threeObject = ground;
-    rb.setUserPointer( btVecUserData );
-
+    PHYSICS.addObject(ground, 0, UTILS.tmpV1.set(w, h, d), 0.05);
     scene.add(ground);
 
     // Loading GLTFs
@@ -64,22 +57,15 @@ Ammo().then(function ( AmmoLib ) {
         // console.log(gltf);
 
         MESH.centerObject3D(gltf.scene);
-
         gltf.scene.position.x = gridCell.x;
         gltf.scene.position.y = gltf.scene.userData.center.y + 0.05 + 0.1;
         gltf.scene.position.z = gridCell.y;
-
         gltf.scene.userData.boundingBox.getSize(UTILS.tmpV1);
-        const shape = new Ammo.btBoxShape( new Ammo.btVector3( UTILS.tmpV1.x * 0.5, UTILS.tmpV1.y * 0.5, UTILS.tmpV1.z * 0.5 ) );
-        shape.setMargin( 0.05 );
-        let rb = PHYSICS.createRigidBody(gltf.scene, shape, 10, null, null, null, null);
 
-        const btVecUserData = new Ammo.btVector3( 0, 0, 0 );
-        btVecUserData.threeObject = gltf.scene;
-        rb.setUserPointer( btVecUserData );
+        PHYSICS.addObject(gltf.scene, 10, UTILS.tmpV1, 0.05);
+        scene.add( gltf.scene );
 
         UTILS.spiralGetNext(gridCell);
-        scene.add( gltf.scene );
     });
 
     requestAnimationFrame( render );
