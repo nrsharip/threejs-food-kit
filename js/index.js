@@ -85,6 +85,13 @@ function render(timeElapsed) {
             break;
         case GAME.PHASES.STARTED:
             PHYSICS.update(timeDelta);
+
+            for (let gltf of Object.values(GLTFS.loaded)) {
+                if (gltf.scene.position.y < 0) {
+                    PHYSICS.setLinearAndAngularVelocity(gltf.scene, UTILS.tmpV1.set(0,0,0), UTILS.tmpV2.set(0,0,0));
+                    PHYSICS.makeTranslationAndRotation(gltf.scene, UTILS.tmpV1.set(0,3,0), UTILS.tmpQuat1.identity());
+                }
+            }
             break;
     }
 
