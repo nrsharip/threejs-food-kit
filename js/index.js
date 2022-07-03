@@ -39,9 +39,15 @@ Ammo().then(function ( AmmoLib ) {
     PHYSICS.dynamicsWorld.setGravity( new Ammo.btVector3( 0, -9.8, 0 ) );
 
     // SCENE OBJECTS
-    const dirLight = GRAPHICS.setupDirLight(); // LIGHTS
+    const dirLight = GRAPHICS.setupDirLight();
     scene.add(dirLight);
-    const ground = PRIMITIVES.makeGround();    // GROUND 
+    
+    // GROUND
+    let w = 40, h = 0.1, d = 40;
+    const ground = PRIMITIVES.makeGround(w, h, d);
+    const shape = new Ammo.btBoxShape( new Ammo.btVector3( w * 0.5, h * 0.5, d * 0.5 ) );
+    shape.setMargin( 0.05 );
+    PHYSICS.createRigidBody(ground, shape, 0, null, null, null, null);
     scene.add(ground);
 
     // Loading GLTFs
@@ -51,7 +57,6 @@ Ammo().then(function ( AmmoLib ) {
         // console.log(gltf);
 
         MESH.centerObject3D(gltf.scene);
-
         // see https://threejs.org/docs/#manual/en/introduction/Matrix-transformations
         gltf.scene.matrixAutoUpdate = false;
 
@@ -96,13 +101,14 @@ function render(timeElapsed) {
             break;
     }
 
-
     // see https://threejs.org/manual/#en/responsive
     if (UTILS.resizeRendererToDisplaySize(renderer)) {
         const canvas = renderer.domElement;
         camera.aspect = canvas.clientWidth / canvas.clientHeight;
         camera.updateProjectionMatrix();
     }
+
+    PHYSICS.update(timeDelta);
 
     renderer.render( scene, camera );
 };

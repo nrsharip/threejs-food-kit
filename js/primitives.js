@@ -17,8 +17,8 @@ function makeCube() {
     return cube;
 }
 
-function makeGround() {
-    const geometry = new THREE.BoxGeometry( 40, 0.1, 40, 1, 1, 1 );
+function makeGround(w, h, d) {
+    const geometry = new THREE.BoxGeometry( w, h, d, 1, 1, 1 );
     const material = new THREE.MeshPhongMaterial( { color: 0xFFFFFF } );
     const ground = new THREE.Mesh(geometry, material);
     ground.receiveShadow = true;

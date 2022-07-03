@@ -9,6 +9,14 @@ const tmpEuler1 = new THREE.Euler();
 const tmpEuler2 = new THREE.Euler();
 const tmpEuler3 = new THREE.Euler();
 
+const tmpQuat1 = new THREE.Quaternion();
+const tmpQuat2 = new THREE.Quaternion();
+const tmpQuat3 = new THREE.Quaternion();
+
+const tmpV1 = new THREE.Vector3();
+const tmpV2 = new THREE.Vector3();
+const tmpV3 = new THREE.Vector3();
+
 // see https://threejs.org/manual/#en/responsive
 function resizeRendererToDisplaySize(renderer) {
     const canvas = renderer.domElement;
@@ -42,5 +50,7 @@ export {
     resizeRendererToDisplaySize, 
     spiralGetNext, 
     tmpM1, tmpM2, tmpM3,
-    tmpEuler1, tmpEuler2, tmpEuler3
+    tmpEuler1, tmpEuler2, tmpEuler3,
+    tmpQuat1, tmpQuat2, tmpQuat3,
+    tmpV1, tmpV2, tmpV3
 }
