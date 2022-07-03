@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { Vector2, Vector3 } from 'three';
 
 import { glbs } from './glbs.js';
+import * as GAME from './game.js'
 import * as MESH from './mesh.js'
 import * as PHYSICS from './physics.js'
 import * as KEYBOARD from './keyboard.js'
@@ -20,6 +21,8 @@ if ( !WebGLCheck.isWebGLAvailable() ) {
     document.body.appendChild( warning );
     throw new Error(warning.textContent);
 }
+
+GAME.state.phase = GAME.PHASES.INIT;
 
 const clock = new THREE.Clock();
 
@@ -44,8 +47,8 @@ Ammo().then(function ( AmmoLib ) {
     // Loading GLTFs
     const gridCell = new Vector2(0, 0);
     GLTFS.queueFileNames("assets/3d/foodKit_v1.2/Models/GLTF/", glbs, function(filename, gltf) {
-        console.log(`GLTF ${filename}: `);
-        console.log(gltf);
+        // console.log(`GLTF ${filename}: `);
+        // console.log(gltf);
 
         MESH.centerObject3D(gltf.scene);
 
@@ -75,15 +78,24 @@ function render(timeElapsed) {
     requestAnimationFrame( render );
 
     const timeDelta = clock.getDelta();
-    // making a Y-rotation matrix
-    // see https://threejs.org/docs/#api/en/math/Matrix4.makeRotationY
-    UTILS.tmpM1.makeRotationY(timeDelta * Math.PI / 2); // 90 degrees / 1 sec
-    for (let gltf of Object.values(GLTFS.loaded)) {
-        // post-multiplying the object's matrix by rotation matrix we apply the rotation
-        gltf.scene.matrix.multiply(UTILS.tmpM1);
-        // now we need to update the whole scene graph children accordnigly
-        gltf.scene.updateMatrixWorld();
+
+    switch (GAME.state.phase) {
+        case GAME.PHASES.INIT:
+        case GAME.PHASES.PAUSED:
+            // making a Y-rotation matrix
+            // see https://threejs.org/docs/#api/en/math/Matrix4.makeRotationY
+            UTILS.tmpM1.makeRotationY(timeDelta * Math.PI / 2); // 90 degrees / 1 sec
+            for (let gltf of Object.values(GLTFS.loaded)) {
+                // post-multiplying the object's matrix by rotation matrix we apply the rotation
+                gltf.scene.matrix.multiply(UTILS.tmpM1);
+                // now we need to update the whole scene graph children accordnigly
+                gltf.scene.updateMatrixWorld();
+            }
+            break;
+        case GAME.PHASES.STARTED:
+            break;
     }
+
 
     // see https://threejs.org/manual/#en/responsive
     if (UTILS.resizeRendererToDisplaySize(renderer)) {
@@ -97,14 +109,30 @@ function render(timeElapsed) {
 
 MENU.addEventListener("startButton", "click", function() {
     document.getElementById("mainMenu").style.display = "none";
+
+    GAME.state.phase = GAME.PHASES.STARTED;
 });
 
 KEYBOARD.addEventListener("keydown", function(e) {
     //console.log(e);
     switch (e.code) {
-      case 'Escape':
-          document.getElementById("mainMenu").style.display = "block";
-          break;
+        case 'Escape':
+            switch (GAME.state.phase) {
+                case GAME.PHASES.INIT:
+                    break;
+                case GAME.PHASES.STARTED:
+                    MENU.get("startButton").textContent = "Resume";
+                    document.getElementById("mainMenu").style.display = "block";
+
+                    GAME.state.phase = GAME.PHASES.PAUSED;
+                    break;
+                case GAME.PHASES.PAUSED:
+                    document.getElementById("mainMenu").style.display = "none";
+
+                    GAME.state.phase = GAME.PHASES.STARTED;
+                    break;
+            }
+            break;
     }
 })
 
