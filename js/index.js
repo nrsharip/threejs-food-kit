@@ -28,7 +28,7 @@ const clock = new THREE.Clock();
 
 // GRAPHICS INIT
 const renderer = GRAPHICS.setupRenderer('#mainCanvas');
-const camera = GRAPHICS.setupPerspectiveCamera('#mainCanvas', new Vector3(0, 6, 20), new Vector3(0, 0, 0));
+const camera = GRAPHICS.setupPerspectiveCamera('#mainCanvas', new Vector3(0, 3, 10), new Vector3(0, 0, 0));
 const scene = GRAPHICS.setupScene('#96b0bc'); // https://encycolorpedia.com/96b0bc
 const orbitControls = GRAPHICS.setupOrbitControls(camera, renderer);
 
@@ -43,11 +43,13 @@ Ammo().then(function ( AmmoLib ) {
     scene.add(dirLight);
     
     // GROUND
-    let w = 40, h = 0.1, d = 40;
+    let w = 15, h = 0.1, d = 15;
     const ground = PRIMITIVES.makeGround(w, h, d);
+
     const shape = new Ammo.btBoxShape( new Ammo.btVector3( w * 0.5, h * 0.5, d * 0.5 ) );
     shape.setMargin( 0.05 );
     PHYSICS.createRigidBody(ground, shape, 0, null, null, null, null);
+
     scene.add(ground);
 
     // Loading GLTFs
@@ -57,20 +59,15 @@ Ammo().then(function ( AmmoLib ) {
         // console.log(gltf);
 
         MESH.centerObject3D(gltf.scene);
-        // see https://threejs.org/docs/#manual/en/introduction/Matrix-transformations
-        gltf.scene.matrixAutoUpdate = false;
 
-        // see https://threejs.org/docs/#manual/en/introduction/Matrix-transformations
-        let scale = 2.5;
-        gltf.scene.matrix.makeScale(scale, scale, scale);
-        gltf.scene.matrix.setPosition(
-            // 0.05 is half-height of the ground
-            gridCell.x * scale, gltf.scene.userData.center.y * scale + 0.05 + 0.1, gridCell.y * scale 
-        );
+        gltf.scene.position.x = gridCell.x;
+        gltf.scene.position.y = gltf.scene.userData.center.y + 0.05 + 0.1;
+        gltf.scene.position.z = gridCell.y;
 
-        // When either the parent or the child object's transformation changes, you can request 
-        // that the child object's matrixWorld be updated by calling updateMatrixWorld().
-        gltf.scene.updateMatrixWorld();
+        gltf.scene.userData.boundingBox.getSize(UTILS.tmpV1);
+        const shape = new Ammo.btBoxShape( new Ammo.btVector3( UTILS.tmpV1.x * 0.5, UTILS.tmpV1.y * 0.5, UTILS.tmpV1.z * 0.5 ) );
+        shape.setMargin( 0.05 );
+        let rb = PHYSICS.createRigidBody(gltf.scene, shape, 10, null, null, null, null);
 
         UTILS.spiralGetNext(gridCell);
         scene.add( gltf.scene );
@@ -87,17 +84,12 @@ function render(timeElapsed) {
     switch (GAME.state.phase) {
         case GAME.PHASES.INIT:
         case GAME.PHASES.PAUSED:
-            // making a Y-rotation matrix
-            // see https://threejs.org/docs/#api/en/math/Matrix4.makeRotationY
-            UTILS.tmpM1.makeRotationY(timeDelta * Math.PI / 2); // 90 degrees / 1 sec
             for (let gltf of Object.values(GLTFS.loaded)) {
-                // post-multiplying the object's matrix by rotation matrix we apply the rotation
-                gltf.scene.matrix.multiply(UTILS.tmpM1);
-                // now we need to update the whole scene graph children accordnigly
-                gltf.scene.updateMatrixWorld();
+                gltf.scene.rotation.y += timeDelta * (Math.PI / 2);
             }
             break;
         case GAME.PHASES.STARTED:
+            PHYSICS.update(timeDelta);
             break;
     }
 
@@ -107,8 +99,6 @@ function render(timeElapsed) {
         camera.aspect = canvas.clientWidth / canvas.clientHeight;
         camera.updateProjectionMatrix();
     }
-
-    PHYSICS.update(timeDelta);
 
     renderer.render( scene, camera );
 };
