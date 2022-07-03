@@ -6,6 +6,8 @@ This project is created as part of the deep dive into [Three.js](https://threejs
 ● [Three.js Fundamentals](https://threejs.org/manual/#en/fundamentals)
 ● [Three.js Examples](https://threejs.org/examples/)
 
+Try the following link: https://nrsharip.github.io/threejs-food-kit/
+
 ## Screenshots
 
 <table>
