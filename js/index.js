@@ -45,10 +45,15 @@ Ammo().then(function ( AmmoLib ) {
     // GROUND
     let w = 15, h = 0.1, d = 15;
     const ground = PRIMITIVES.makeGround(w, h, d);
+    ground["userData"].name = "ground";
 
     const shape = new Ammo.btBoxShape( new Ammo.btVector3( w * 0.5, h * 0.5, d * 0.5 ) );
     shape.setMargin( 0.05 );
-    PHYSICS.createRigidBody(ground, shape, 0, null, null, null, null);
+    let rb = PHYSICS.createRigidBody(ground, shape, 0, null, null, null, null);
+
+    const btVecUserData = new Ammo.btVector3( 0, 0, 0 );
+    btVecUserData.threeObject = ground;
+    rb.setUserPointer( btVecUserData );
 
     scene.add(ground);
 
@@ -68,6 +73,10 @@ Ammo().then(function ( AmmoLib ) {
         const shape = new Ammo.btBoxShape( new Ammo.btVector3( UTILS.tmpV1.x * 0.5, UTILS.tmpV1.y * 0.5, UTILS.tmpV1.z * 0.5 ) );
         shape.setMargin( 0.05 );
         let rb = PHYSICS.createRigidBody(gltf.scene, shape, 10, null, null, null, null);
+
+        const btVecUserData = new Ammo.btVector3( 0, 0, 0 );
+        btVecUserData.threeObject = gltf.scene;
+        rb.setUserPointer( btVecUserData );
 
         UTILS.spiralGetNext(gridCell);
         scene.add( gltf.scene );

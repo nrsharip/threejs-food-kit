@@ -17,6 +17,7 @@ function onGLTFLoad(filename, onLoad) {
         loaded[filename] = gltf;
 
         if (gltf && gltf.scene && gltf.scene instanceof THREE.Object3D) {
+            gltf.scene["userData"].name = filename;
             gltf.scene.traverse(function(object) {
                 if (object.isMesh) {
                     // see https://threejs.org/manual/#en/shadows

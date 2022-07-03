@@ -130,7 +130,36 @@ function update( deltaTime ) {
             object.position.set( p.x(), p.y(), p.z() );
             object.quaternion.set( q.x(), q.y(), q.z(), q.w() );
             object.userData.collided = false;
+
+            if (p.y() < 0) {
+                rigidBody.setLinearVelocity( new Ammo.btVector3( 0,0,0 ) ); 
+                rigidBody.setAngularVelocity( new Ammo.btVector3( 0,0,0 ) );
+
+                tmpBtTransform1.setIdentity();
+                tmpBtTransform1.setOrigin(new Ammo.btVector3( 0,3,0 ));
+                tmpBtTransform1.setRotation(new Ammo.btQuaternion( 0,0,0,1 ));
+                motionState.setWorldTransform(tmpBtTransform1);
+                rigidBody.setMotionState(motionState);
+            }
         }
+    }
+
+    for (let i = 0; i < dispatcher.getNumManifolds(); i++) {
+        const contactManifold = dispatcher.getManifoldByIndexInternal( i );
+        const rb0 = Ammo.castObject( contactManifold.getBody0(), Ammo.btRigidBody );
+        const rb1 = Ammo.castObject( contactManifold.getBody1(), Ammo.btRigidBody );
+
+        const object0 = Ammo.castObject( rb0.getUserPointer(), Ammo.btVector3 ).threeObject;
+        const object1 = Ammo.castObject( rb1.getUserPointer(), Ammo.btVector3 ).threeObject;
+
+        if ( !object0 && !object1 ) { continue; }
+
+        const userData0 = object0 ? object0.userData : null;
+        const userData1 = object1 ? object1.userData : null;
+
+        tmpBtVector1.setValue(0, 200, 0);
+        if (userData0.name == "ground") { rb1.applyCentralForce(tmpBtVector1); }
+        if (userData1.name == "ground") { rb0.applyCentralForce(tmpBtVector1); }
     }
 }
 
