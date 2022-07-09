@@ -10,6 +10,8 @@ This project is created as part of the deep dive into [Three.js](https://threejs
 
 ## Screenshots
 
+<img src="docs/run.gif?raw=true" width="100%">
+
 <table>
 <tr>
   <td><img src="docs/screenshot1.png?raw=true" width="100%"></td>
